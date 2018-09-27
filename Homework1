@@ -1,0 +1,22 @@
+#include<windows.h>
+#include<stdio.h>
+#include<tchar.h>
+//#include<iostream>
+//using namespace std;
+void _tmain()
+{
+	STARTUPINFO si;
+	PROCESS_INFORMATION pi;
+	WCHAR command[35] = L"notepad.exe";
+	ZeroMemory(&si, sizeof(si));
+	ZeroMemory(&pi,sizeof(pi));
+	if (!CreateProcess(NULL, (LPTSTR)command, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
+	{
+		printf("CreateProcess failed\n");
+		return;
+	}
+	WaitForSingleObject(pi.hProcess, INFINITE);
+
+	CloseHandle(pi.hProcess);
+	CloseHandle(pi.hThread);
+}
