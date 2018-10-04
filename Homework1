@@ -1,16 +1,57 @@
 #include<windows.h>
 #include<stdio.h>
 #include<tchar.h>
-//#include<iostream>
-//using namespace std;
+#include <iostream>
+#include<vector>
+#include<string>
+#include<sstream>
+
+using namespace std;
+
 void _tmain()
 {
+	string s;
+	string for_command;
+	string final;
+	char ce[30];
+
+	getline(cin, s);
+
+	while (s != "%")
+	{
+		char c;
+
+		int a, b;
+		stringstream ss(s);
+		ss >> c;
+		if (c == '+')
+		{
+			ss >> a >> b;
+			cout << a + b << endl;
+		}
+		else if (c == '-')
+		{
+			ss >> a >> b;
+			cout << a - b << endl;
+		}
+		else
+		{
+			ss >> for_command;
+			ce[0]= c;
+			for (int i = 0; i <= for_command.size(); i++)
+			{
+				ce[i + 1] = for_command[i];
+			}		
+		}
+		getline(cin, s);	
+	 }
+	
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
-	WCHAR command[35] = L"notepad.exe";
+	
 	ZeroMemory(&si, sizeof(si));
-	ZeroMemory(&pi,sizeof(pi));
-	if (!CreateProcess(NULL, (LPTSTR)command, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
+	ZeroMemory(&pi, sizeof(pi));
+	if (!CreateProcess(NULL, ce, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
 	{
 		printf("CreateProcess failed\n");
 		return;
