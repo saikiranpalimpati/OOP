@@ -53,52 +53,62 @@ int main(int argc, char *argv[])
 
 *************************************************************************************************************************************
 
-#include<stdio.h>
 #include<pthread.h>
-#define max 1000000000
-pthread_mutex_t the_mutex;
-pthread_cond_t condc, condp;
-int buffer = 0;
-void *producer(void *ptr)
+#include<stdio.h>
+#include<stdlib.h> 
+#include <semaphore.h> 
+#include <unistd.h> 
+
+#define NUMBER_OF_THREADS 5
+int total = 0;
+int array[5000];
+
+sem_t mutex;
+
+void *print_hello_world(void *tid)
 {
-	int i;
-	for (int i = 1; i <= max; i++)
+
+
+	printf("Hello world.Greetings from thread %d \n", tid);
+	int value = tid;
+	int lowerbound = (value - 1) * 1000;
+	int upperbound = (value * 1000) - 1;
+
+
+	for (int i = lowerbound; i <= upperbound; i++)
 	{
-		pthread_mutex_lock(&the_mutex);
-
-		while (buffer != 0) pthread_cond_wait(&condp, &the_mutex);
-		buffer = i;
-		pthread_cond_signal(&condc);
-		pthread_mutex_unlock(&the_mutex);
-
+		total = total + array[i];
 	}
-	pthread_exit(0);
+	pthread_exit(NULL);
 }
-void *consumer(void *ptr)
+int main(int argc, char *argv[])
 {
-	int i;
-	for (i = 1; i <= max; i++)
+	sem_init(&mutex, 0, 1);
+
+	pthread_t threads[NUMBER_OF_THREADS];
+	int status, i;
+	for (int j = 0; j < 5000; j++)
 	{
-		pthread_mutex_lock(&the_mutex);
-		while (buffer == 0) pthread_cond_wait(&condc, &the_mutex);
-		buffer = 0;
-		pthread_cond_signal(&condp);
-		pthread_mutex_unlock(&the_mutex);
+		array[j] = j;
 	}
-	pthread_exit(0);
-}
-int main(int argc,char **argv)
-{
-	pthread_t pro, con;
-	pthread_mutex_init(&the_mutex, 0);
-	pthread_cond_init(&condc, 0);
-	pthread_cond_init(&condp, 0);
-	pthread_create(&con, 0, consumer, 0);
-	pthread_create(&pro, 0, producer, 0);
-	pthread_join(pro, 0);
-	pthread_join(con, 0);
-	pthread_cond_destroy(&condc);
-	pthread_cond_destroy(&condp);
-	pthread_mutex_destroy(&the_mutex);
 
+	for (int i = 1; i <= NUMBER_OF_THREADS; i++)
+	{
+
+		printf("main here.creating thread%d \n ", i);
+		//printf("%t");
+		status = pthread_create(&threads[i], NULL, print_hello_world, (void*)i);
+		if (status != 0)
+		{
+			printf("Oops.pthread_create returned error code%d", status);
+			return -1;
+		}
+		//printf("%d",array[i]);
+	}
+
+	printf("tis is total %d", total);
+	sem_destroy(&mutex);
+	return 0;
 }
+
+
